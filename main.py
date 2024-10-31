@@ -5,9 +5,6 @@ import os
 
 app = Flask(__name__)
 
-# Initialize Firehose client
-firehose_client = boto3.client('firehose', region_name=os.environ.get('AWS_REGION', 'us-west-1'))
-
 # Firehose stream name (environment variable is recommended)
 FIREHOSE_STREAM_NAME = os.environ.get('FIREHOSE_STREAM_NAME', 'amplitude-firehose-firehose-stream')
 
@@ -22,6 +19,11 @@ def send_data():
     }
 
     try:
+        # Initialize Firehose client
+        firehose_client = boto3.client('firehose', region_name=os.environ.get('AWS_REGION', 'us-west-1'))
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': f"Error while connceting to firehose {e}"}), 500
+    try:
         # Send data to Firehose
         response = firehose_client.put_record(
             DeliveryStreamName=FIREHOSE_STREAM_NAME,
@@ -29,8 +31,7 @@ def send_data():
         )
         return jsonify({'status': 'success', 'response': response}), 200
     except Exception as e:
-        print(f"Error sending data to Firehose: {e}")
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        return jsonify({'status': 'error', 'message': f"Error while writing to firehose {e}")}), 500
 
 @app.route('/')
 def hello_world():
