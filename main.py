@@ -5,9 +5,6 @@ import os
 
 app = Flask(__name__)
 
-# Firehose stream name (environment variable is recommended)
-FIREHOSE_STREAM_NAME = os.environ.get('FIREHOSE_STREAM_NAME', 'amplitude-firehose-firehose-stream')
-
 @app.route('/send-data', methods=['POST'])
 def send_data():
     # Assuming JSON data is sent in the request body
@@ -26,7 +23,7 @@ def send_data():
     try:
         # Send data to Firehose
         response = firehose_client.put_record(
-            DeliveryStreamName=FIREHOSE_STREAM_NAME,
+            DeliveryStreamName= 'amplitude-firehose-firehose-stream',
             Record=record
         )
         return jsonify({'status': 'success', 'response': response}), 200
