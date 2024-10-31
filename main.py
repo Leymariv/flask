@@ -31,7 +31,7 @@ def send_data():
         )
         return jsonify({'status': 'success', 'response': response}), 200
     except Exception as e:
-        return jsonify({'status': 'error', 'message': f"Error while writing to firehose {e}")}), 500
+        return jsonify({'status': 'error', 'message': f"Error while writing to firehose {e}"}), 500
 
 @app.route('/')
 def hello_world():
