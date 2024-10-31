@@ -16,7 +16,7 @@ def send_data():
 
     try:
         # Initialize Firehose client
-        firehose_client = boto3.client('firehose', region_name='us-west-1')
+        firehose_client = boto3.client('firehose', region_name='eu-west-1')
     except Exception as e:
         return jsonify({'status': 'error', 'message': f"Error while connceting to firehose {e}"}), 500
     try:
