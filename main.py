@@ -6,28 +6,25 @@ app = Flask(__name__)
 
 @app.route('/send-data', methods=['POST'])
 def send_data():
-    # Assuming JSON data is sent in the request body
-    data = request.json
-
-    # Convert data to JSON string format for Firehose
-    record = {
-        'Data': json.dumps(data) + '\n'  # Firehose expects newline-delimited records
-    }
-
     try:
-        # Initialize Firehose client
-        firehose_client = boto3.client('firehose', region_name='eu-west-1')
-    except Exception as e:
-        return jsonify({'status': 'error', 'message': f"Error while connceting to firehose {e}"}), 500
-    try:
-        # Send data to Firehose
+    # Get caller identity to verify the role
+        sts_client = boto3.client('sts')
+        identity = sts_client.get_caller_identity()
+        logging.info(f"Current AWS Identity: {identity}")
+
+    # Send data to Firehose
         response = firehose_client.put_record(
-            DeliveryStreamName= 'amplitude-firehose-firehose-stream',
-            Record=record
+            DeliveryStreamName='amplitude-firehose-firehose-stream',
+            Record={'Data': 'sample data\n'}
         )
         return jsonify({'status': 'success', 'response': response}), 200
+
+    except NoCredentialsError:
+        logging.error("No AWS credentials available.")
+        return jsonify({'status': 'error', 'message': f"Unable to locate credentials {identity} "}), 500
     except Exception as e:
-        return jsonify({'status': 'error', 'message': f"Error while writing to firehose {e}"}), 500
+        logging.error(f"Error while writing to firehose: {e}")
+        return jsonify({'status': 'error', 'message': f"Error while writing to firehose {identity} and exception {e}"}), 500
 
 @app.route('/')
 def hello_world():
