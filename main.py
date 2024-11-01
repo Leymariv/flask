@@ -45,7 +45,7 @@ def debug_aws_credentials():
         }), 500
         
 @app.route('/send-data-bis', methods=['POST'])
-def send_data():
+def send_data_bis():
     try:
     # Get caller identity to verify the role
         sts_client = boto3.client('sts')
