@@ -46,19 +46,19 @@ def send_to_firehose(delivery_stream_name: str, data: dict):
 
 @app.post("/send-data")
 async def send_data(request: Request):
+    data = await request.json()
     try:
-        data = await request.json()
         eventid = data.get("eventid")
 
         if not eventid or not validate_eventid(eventid):
-            response = send_to_firehose('amplitude-firehose-error-stream', data)
             raise HTTPException(status_code=400, detail="Invalid eventid format. Expected x.y.z where x is a valid choice, and y, z are integers.")
 
         response = send_to_firehose('amplitude-firehose-firehose-stream', data)
     
         return JSONResponse(content={"status": "success", "response": response}, status_code=200)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        response = send_to_firehose('amplitude-firehose-error-stream', data)
+        return JSONResponse(content={"status": "failure", "response": response, "error": str(e)}, status_code=500)
 
 
 if __name__ == "__main__":
