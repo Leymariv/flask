@@ -61,6 +61,11 @@ async def send_data(request: Request):
         return JSONResponse(content={"status": "failure", "response": response, "error": str(e)}, status_code=500)
 
 
+@app.get("/test")
+async def send_data(request: Request):
+    return JSONResponse(content={"status": "hello valmon"}, status_code=200)
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=3000)
